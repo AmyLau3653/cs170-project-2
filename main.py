@@ -1,7 +1,5 @@
 import numpy as np
 import time
-import copy
-
 
 def startAlg():
     print("Welcome to Amy's Feature Selection Algorithm.")
@@ -30,14 +28,9 @@ def startAlg():
     print(f"Running nearest neighbor with all {num_features} features, using 'leave-one-out' evaluation, I get an accuracy of {initial_accuracy:.1f}%")
     
     # calculate default rate
-    labels = data[:, 0]
-    # count number of each unique label, source: https://stackoverflow.com/questions/10741346/frequency-counts-for-unique-values-in-a-numpy-array
-    unique_labels, counts = np.unique(labels, return_counts=True)
-    # get the most common label
-    most_common_count = counts.max()
-    default_rate = most_common_count / len(labels)
+    def_rate = default_rate(data)
 
-    print(f"Default rate: {default_rate:.1%}")
+    print(f"Default rate: {def_rate:.1%}")
 
     # start run time
     start_time = time.time()
@@ -67,6 +60,17 @@ def startAlg():
     print(f"Runtime: {runtime:.2f} seconds")
     print(f"Runtime: {minutes:.2f} minutes")
     print(f"Runtime: {hours:.2f} hours")
+
+def default_rate(data):
+    # calculate default rate
+    labels = data[:, 0]
+    # count number of each unique label, source: https://stackoverflow.com/questions/10741346/frequency-counts-for-unique-values-in-a-numpy-array
+    unique_labels, counts = np.unique(labels, return_counts=True)
+    # get the most common label
+    most_common_count = counts.max()
+    default_rate = most_common_count / len(labels)
+
+    return default_rate
     
 # leave one out cross validation, based on matlab code provided by Professor Keogh in the Project 2 Briefing Slides
 # function accuracy = leave_one_out_cross_validation(data, current_set, feature_to_add)
@@ -75,6 +79,11 @@ def leave_one_out_cross_validation(data, current_set, feature_to_add):
     num_instances = data.shape[0]
     
     feature_set_to_use = current_set if feature_to_add is None else current_set + [feature_to_add]
+
+    # check if the list is empty
+    if not feature_set_to_use or not current_set:  
+        default = default_rate(data)
+        return default * 100
 
     for i in range(num_instances): 
         object_to_classify = data[i, feature_set_to_use]  # get features, ignore class label
@@ -141,7 +150,7 @@ def forward_selection(data):
 
 # start with full feature set instead of empty set
 def backward_elimination(data):
-    num_features = data.shape[1] - 1
+    num_features = data.shape[1] - 1 
 
     # start with all features
     current_set_of_features = list(range(1, num_features + 1))
@@ -154,35 +163,35 @@ def backward_elimination(data):
 
     print("\nBeginning Backward Elimination\n")
 
-    for i in range(num_features - 1):
-        print(f"Backward elimination of features from {current_set_of_features}")
-        feature_to_remove_at_this_level = None
-        best_so_far_accuracy = best_accuracy
+    for i in range(1, num_features + 1):
+        print(f"On {i}th level of the search tree, trying feature elimination from {current_set_of_features} ({len(current_set_of_features)} features left)")
 
-        for k in range(len(current_set_of_features)):   
+        feature_to_remove_at_this_level = None
+        best_so_far_accuracy = 0
+
+        for k in current_set_of_features:
             potential_feature_set = current_set_of_features.copy()
-            eliminated_feature = potential_feature_set.pop(k)
+            potential_feature_set.remove(k)
 
             accuracy = leave_one_out_cross_validation(data, potential_feature_set, None)
-            print(f"Removing feature {eliminated_feature} accuracy is {accuracy:.1f}%")
+            print(f"Trying removal of feature {k}, accuracy: {accuracy:.1f}%")
 
-            if accuracy > best_so_far_accuracy:      
+            if accuracy > best_so_far_accuracy:
                 best_so_far_accuracy = accuracy
-                feature_to_remove_at_this_level = eliminated_feature
-
+                feature_to_remove_at_this_level = k
 
         if feature_to_remove_at_this_level is not None:
             current_set_of_features.remove(feature_to_remove_at_this_level)
-
+            print(f"Removing feature {feature_to_remove_at_this_level} was best, accuracy is {best_so_far_accuracy:.1f}%")
+        
             if best_so_far_accuracy > best_accuracy:
                 best_accuracy = best_so_far_accuracy
                 best_feature_set = current_set_of_features.copy()
-                print(f"Removing feature {feature_to_remove_at_this_level} was best, accuracy is {best_so_far_accuracy:.1f}%\n")
+                print(f"New best feature set is {best_feature_set}, accuracy is {best_accuracy:.1f}%\n")
             else:
-                print("Accuracy dropped! Continuing search...")
+                print("Accuracy dropped! Continuing search...\n")
 
-    return best_feature_set, best_accuracy 
-        
+    return best_feature_set, best_accuracy
 
 if __name__ == "__main__":
 
