@@ -73,7 +73,6 @@ def default_rate(data):
     return default_rate
     
 # leave one out cross validation, based on matlab code provided by Professor Keogh in the Project 2 Briefing Slides
-# function accuracy = leave_one_out_cross_validation(data, current_set, feature_to_add)
 def leave_one_out_cross_validation(data, current_set, feature_to_add):
     num_correctly_classified = 0
     num_instances = data.shape[0]
@@ -109,11 +108,9 @@ def leave_one_out_cross_validation(data, current_set, feature_to_add):
     return accuracy
 
 # forward selection, based on matlab code provided by Professor Keogh in the Project 2 Briefing Slides
-# function feature_search_demo(data)
 def forward_selection(data):
     num_features = data.shape[1] - 1
     
-    # current_set_of_features = [];
     current_set_of_features = []
     best_accuracy = 0 
     best_feature_set = []
