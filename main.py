@@ -80,7 +80,8 @@ def leave_one_out_cross_validation(data, current_set, feature_to_add):
     feature_set_to_use = current_set if feature_to_add is None else current_set + [feature_to_add]
 
     # check if the list is empty
-    if not feature_set_to_use or not current_set:  
+    # if not feature_set_to_use or not current_set:  
+    if not feature_set_to_use:  
         default = default_rate(data)
         return default * 100
 
