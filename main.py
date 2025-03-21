@@ -14,14 +14,14 @@ def startAlg():
     # number of rows
     num_instances = len(data)
     
-    print(f"This dataset has {num_features} features (not including the class attribute), with {num_instances} instances.")
-    
     # selection of which algorithm
     print("Type the number of the algorithm you want to run.")
     print("1) Forward Selection")
     print("2) Backward Elimination")
     
     choice = input("Selected algorithm: ")
+
+    print(f"\nThis dataset has {num_features} features (not including the class attribute), with {num_instances} instances.")
 
     # nearest neighbor on all features to get initial accuracy, accounting for the index of the column (start at feature 1 not 0)
     initial_accuracy = leave_one_out_cross_validation(data, list(range(1, num_features + 1)), None)
@@ -55,9 +55,9 @@ def startAlg():
     hours = runtime / 3600
 
     # print best features and accuracy
-    print(f"Finished search!! The best feature subset is {best_features}, which has an accuracy of {best_accuracy:.1f}%")
+    print(f"Finished search!! The best feature subset is {best_features}, which has an accuracy of {best_accuracy:.1f}%\n")
     # print runtime
-    print(f"Runtime: {runtime:.2f} seconds")
+    # print(f"Runtime: {runtime:.2f} seconds")
     print(f"Runtime: {minutes:.2f} minutes")
     print(f"Runtime: {hours:.2f} hours")
 
@@ -116,7 +116,7 @@ def forward_selection(data):
     best_accuracy = 0 
     best_feature_set = []
 
-    print("\nBeginning Forward Selection\n")
+    print("\nBeginning Search.")
 
     for i in range(num_features):
         print(f"On the {i+1}th level of the search tree")
@@ -128,7 +128,7 @@ def forward_selection(data):
                 accuracy = leave_one_out_cross_validation(data, current_set_of_features, k)
 
                 features_being_tested = current_set_of_features + [k]
-                print(f"Using feature(s) {set(features_being_tested)} accuracy is {accuracy:.1f}%")
+                print(f"     Using feature(s) {set(features_being_tested)} accuracy is {accuracy:.1f}%")
 
                 if accuracy > best_so_far_accuracy:      
                     best_so_far_accuracy = accuracy
@@ -138,7 +138,7 @@ def forward_selection(data):
         if feature_to_add_at_this_level is not None:  # add the best feature found
             current_set_of_features.append(feature_to_add_at_this_level)
 
-            print(f"\nFeature set {set(current_set_of_features)} was best, accuracy is {best_so_far_accuracy:.1f}%\n")
+            print(f"Feature set {set(current_set_of_features)} was best, accuracy is {best_so_far_accuracy:.1f}%\n")
 
             if best_so_far_accuracy > best_accuracy:  # update best accuracy so far
                 best_accuracy = best_so_far_accuracy
@@ -159,7 +159,7 @@ def backward_elimination(data):
     # initial best is all features
     best_feature_set = current_set_of_features.copy()
 
-    print("\nBeginning Backward Elimination\n")
+    print("\nBeginning Search.\n")
 
     for i in range(1, num_features + 1):
         print(f"On {i}th level of the search tree, trying feature elimination from {current_set_of_features} ({len(current_set_of_features)} features left)")
